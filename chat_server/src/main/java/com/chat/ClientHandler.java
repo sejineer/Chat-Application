@@ -32,6 +32,7 @@ public class ClientHandler implements Runnable {
             while ((inputLine = in.readLine()) != null) {
                 try {
                     JSONObject json = new JSONObject(inputLine);
+
                 } catch (JSONException e) {
                     System.err.println("JSON 파싱 오류: " + e.getMessage());
                 }

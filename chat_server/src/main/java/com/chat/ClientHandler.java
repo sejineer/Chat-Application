@@ -1,3 +1,8 @@
+package com.chat;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -26,7 +31,9 @@ public class ClientHandler implements Runnable {
             String inputLine;
             while ((inputLine = in.readLine()) != null) {
                 try {
-                    JSONObj
+                    JSONObject json = new JSONObject(inputLine);
+                } catch (JSONException e) {
+                    System.err.println("JSON 파싱 오류: " + e.getMessage());
                 }
             }
         } catch (IOException e) {
@@ -45,4 +52,5 @@ public class ClientHandler implements Runnable {
             System.err.println("자원 정리 중 오류 발생: " + e.getMessage());
         }
     }
+
 }

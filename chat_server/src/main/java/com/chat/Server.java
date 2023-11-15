@@ -1,69 +1,107 @@
 package com.chat;
 
 import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
+import java.net.InetSocketAddress;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
+import java.util.*;
 import java.util.concurrent.*;
 
 public class Server implements Runnable {
 
-    private ServerSocket serverSocket;
-    private List<ClientHandler> clientHandlers;
+    private Selector selector;
+    private ServerSocketChannel serverChannel;
     private ExecutorService threadPool;
     private BlockingQueue<Message> messageQueue;
+    private MessageHandlerMap handlerMap;
 
     public Server(int port, int threadPoolSize) {
         try {
-            serverSocket = new ServerSocket(port);
-        } catch (IOException e) {
-            throw new RuntimeException("서버 소켓을 초기화하는데 실패했습니다.", e);
-        }
+            selector = Selector.open();
+            serverChannel = ServerSocketChannel.open();
+            serverChannel.configureBlocking(false);
+            serverChannel.socket().bind(new InetSocketAddress(port));
+            serverChannel.register(selector, SelectionKey.OP_ACCEPT);
 
-        clientHandlers = new ArrayList<>();
-        threadPool = Executors.newFixedThreadPool(threadPoolSize);
-        messageQueue = new LinkedBlockingQueue<>();
+            threadPool = Executors.newFixedThreadPool(threadPoolSize);
+            messageQueue = new LinkedBlockingQueue<>();
+
+            handlerMap = new MessageHandlerMap();
+            registerMessageHandlers();
+        } catch (IOException e) {
+            throw new RuntimeException("서버 초기화 중 오류 발생", e);
+        }
     }
 
     @Override
     public void run() {
-        System.out.println("서버가 포트 " + serverSocket.getLocalPort() + "에서 시작되었습니다.");
-
         try {
-            while (!serverSocket.isClosed()) {
-                Socket clientSocket = serverSocket.accept();
-                System.out.println("클라이언트가 연결되었습니다: " + clientSocket.getInetAddress());
+            while (true) {
+                selector.select();
+                Set<SelectionKey> selectedKeys = selector.selectedKeys();
+                Iterator<SelectionKey> iter = selectedKeys.iterator();
 
-                ClientHandler clientHandler = new ClientHandler(clientSocket, messageQueue);
-                clientHandlers.add(clientHandler);
-                threadPool.execute(clientHandler);
+                while (iter.hasNext()) {
+                    SelectionKey key = iter.next();
+                    if (key.isAcceptable()) {
+                        registerClient();
+                    } else if (key.isReadable()) {
+                        readMessage(key);
+                    }
+                    iter.remove();
+                }
             }
         } catch (IOException e) {
-            if (!serverSocket.isClosed()) {
-                System.err.println("클라이언트 연결 중 오류 발생: " + e.getMessage());
-                e.printStackTrace();
-            }
-        } finally {
-            stop();
+            throw new RuntimeException("서버 실행 중 오류 발생", e);
         }
     }
 
-    public void stop() {
-        try {
-            for (ClientHandler handler : clientHandlers) {
-                handler.close();
-            }
-            serverSocket.close();
-            threadPool.shutdown();
-        } catch (IOException e) {
-            System.err.println("서버를 정리하는 중 오류 발생: " + e.getMessage());
-            e.printStackTrace();
+    private void registerClient() throws IOException {
+        // ServerSocketChannel을 통해 SocketChannel 얻기
+        SocketChannel clientChannel = serverChannel.accept();
+        if (clientChannel != null) {
+            clientChannel.configureBlocking(false);
+            SelectionKey key = clientChannel.register(selector, SelectionKey.OP_READ);
+
+            // ClientHandler 생성 및 Selector의 Key에 첨부
+            ClientHandler clientHandler = new ClientHandler(clientChannel, selector, messageQueue);
+            key.attach(clientHandler);
         }
     }
 
-    private void processMessage() {
+    private void readMessage(SelectionKey key) {
+        ClientHandler clientHandler = (ClientHandler) key.attachment();
+        clientHandler.readMessage(key);
+    }
 
+    private void registerMessageHandlers() {
+        handlerMap.registerHandler("CSName", this::handleCSName);
+        handlerMap.registerHandler("CSRooms", this::handleCSRooms);
+        handlerMap.registerHandler("CSCreateRoom", this::handleCSCreateRoom);
+        handlerMap.registerHandler("CSJoinRoom", this::handleCSJoinRoom);
+        handlerMap.registerHandler("CSLeaveRoom", this::handleCSLeaveRoom);
+        handlerMap.registerHandler("CSChat", this::handleCSChat);
+        handlerMap.registerHandler("CSShutdown", this::handleCSShutdown);
+    }
+
+    private void handleCSShutdown(Message message) {}
+
+    private void handleCSChat(Message message) {}
+
+    private void handleCSLeaveRoom(Message message) {}
+
+    private void handleCSJoinRoom(Message message) {}
+
+    private void handleCSCreateRoom(Message message) {}
+
+    private void handleCSRooms(Message message) {}
+
+    private void handleCSName(Message message) {}
+
+    private void processMessage(Message message) {
+        handlerMap.handleMessage(message);
     }
 
 }

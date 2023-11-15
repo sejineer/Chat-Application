@@ -1,56 +1,65 @@
 package com.chat;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.Socket;
+import java.nio.ByteBuffer;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
+import java.nio.channels.SocketChannel;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.BlockingQueue;
 
 public class ClientHandler implements Runnable {
 
-    private final Socket clientSocket;
-    private final BlockingQueue<Message> messageQueue;
-    private PrintWriter out;
-    private BufferedReader in;
+    private SocketChannel channel;
+    private Selector selector;
+    private BlockingQueue<Message> messageQueue;
 
-    public ClientHandler(Socket socket, BlockingQueue<Message> queue) {
-        this.clientSocket = socket;
-        this.messageQueue = queue;
+    public ClientHandler(SocketChannel channel, Selector selector, BlockingQueue<Message> messageQueue) {
+        this.channel = channel;
+        this.selector = selector;
+        this.messageQueue = messageQueue;
     }
 
     @Override
     public void run() {
         try {
-            out = new PrintWriter(clientSocket.getOutputStream(), true);
-            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-
-            String inputLine;
-            while ((inputLine = in.readLine()) != null) {
-                try {
-                    JSONObject json = new JSONObject(inputLine);
-
-                } catch (JSONException e) {
-                    System.err.println("JSON 파싱 오류: " + e.getMessage());
+            ByteBuffer buffer = ByteBuffer.allocate(256);
+            int read;
+            while (true) {
+                read = channel.read(buffer);
+                if (read == -1) {
+                    channel.close();
+                    return;
                 }
+
             }
         } catch (IOException e) {
-            System.err.println("클라이언트 핸들러 오류: " + e.getMessage());
-        } finally {
-            close();
+            throw new RuntimeException("클라이언트 통신 중 오류 발생", e);
         }
     }
 
-    public void close() {
+    public void readMessage(SelectionKey key) {
         try {
-            in.close();
-            out.close();
-            clientSocket.close();
-        } catch (IOException e) {
-            System.err.println("자원 정리 중 오류 발생: " + e.getMessage());
+            ByteBuffer buffer = ByteBuffer.allocate(256);
+            int read = channel.read(buffer);
+            if (read == -1) {
+                channel.close();
+                key.cancel();
+                return;
+            }
+
+            String received = new String(buffer.array(), 0, buffer.position(), StandardCharsets.UTF_8);
+            buffer.clear();
+
+            // 메시지 파싱 로직
+            // 예시: "type|sender|message" 형식의 메시지를 파싱한다고 가정
+            String[] parts = received.split("\\|", 3);
+            if (parts.length == 3) {
+                Message message = new Message(parts[0], parts[1], parts[2]);
+                messageQueue.put(message);
+            }
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException("메시지 읽기 오류 발생", e);
         }
     }
 

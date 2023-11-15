@@ -1,8 +1,6 @@
 package com.chat;
 
 import com.chat.handler.*;
-import org.json.JSONObject;
-
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
@@ -36,11 +34,6 @@ public class Server implements Runnable {
         } catch (IOException e) {
             throw new RuntimeException("서버 초기화 중 오류 발생", e);
         }
-    }
-
-    private void startMessageProcessor() {
-        MessageProcessor processor = new MessageProcessor(messageQueue, handlerMap);
-        threadPool.submit(processor);
     }
 
     @Override
@@ -79,6 +72,11 @@ public class Server implements Runnable {
         }
     }
 
+    private void startMessageProcessor() {
+        MessageProcessor processor = new MessageProcessor(messageQueue, handlerMap);
+        threadPool.submit(processor);
+    }
+
     private void readMessage(SelectionKey key) {
         ClientHandler clientHandler = (ClientHandler) key.attachment();
         clientHandler.readMessage(key);
@@ -92,11 +90,6 @@ public class Server implements Runnable {
         handlerMap.registerHandler("CSLeaveRoom", new CSLeaveRoomHandler());
         handlerMap.registerHandler("CSChat", new CSChatHandler());
         handlerMap.registerHandler("CSShutdown", new CSShutDownHandler());
-    }
-
-    private void handleCSName(Message message) {
-        JSONObject jsonData = message.getJsonData();
-        String name = jsonData.getString("name");
     }
 
     private void processMessage(Message message) {

@@ -12,6 +12,7 @@ import java.util.concurrent.BlockingQueue;
 
 public class ClientHandler implements Runnable {
 
+    private Client client;
     private SocketChannel channel;
     private Selector selector;
     private BlockingQueue<Message> messageQueue;
@@ -20,6 +21,7 @@ public class ClientHandler implements Runnable {
         this.channel = channel;
         this.selector = selector;
         this.messageQueue = messageQueue;
+        this.client = new Client(channel);
     }
 
     @Override
@@ -60,6 +62,10 @@ public class ClientHandler implements Runnable {
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException("메시지 읽기 오류 발생", e);
         }
+    }
+
+    public Client getClient() {
+        return client;
     }
 
 }

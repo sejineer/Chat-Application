@@ -1,5 +1,7 @@
 package com.chat;
 
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
@@ -51,13 +53,10 @@ public class ClientHandler implements Runnable {
             String received = new String(buffer.array(), 0, buffer.position(), StandardCharsets.UTF_8);
             buffer.clear();
 
-            // 메시지 파싱 로직
-            // 예시: "type|sender|message" 형식의 메시지를 파싱한다고 가정
-            String[] parts = received.split("\\|", 3);
-            if (parts.length == 3) {
-                Message message = new Message(parts[0], parts[1], parts[2]);
-                messageQueue.put(message);
-            }
+            JSONObject json = new JSONObject(received);
+            String type = json.getString("type");
+            Message message = new Message(type, json, channel);
+            messageQueue.put(message);
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException("메시지 읽기 오류 발생", e);
         }

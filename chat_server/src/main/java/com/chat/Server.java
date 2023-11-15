@@ -1,5 +1,8 @@
 package com.chat;
 
+import com.chat.handler.*;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
@@ -27,12 +30,17 @@ public class Server implements Runnable {
 
             threadPool = Executors.newFixedThreadPool(threadPoolSize);
             messageQueue = new LinkedBlockingQueue<>();
-
             handlerMap = new MessageHandlerMap();
             registerMessageHandlers();
+            startMessageProcessor();
         } catch (IOException e) {
             throw new RuntimeException("서버 초기화 중 오류 발생", e);
         }
+    }
+
+    private void startMessageProcessor() {
+        MessageProcessor processor = new MessageProcessor(messageQueue, handlerMap);
+        threadPool.submit(processor);
     }
 
     @Override
@@ -77,28 +85,19 @@ public class Server implements Runnable {
     }
 
     private void registerMessageHandlers() {
-        handlerMap.registerHandler("CSName", this::handleCSName);
-        handlerMap.registerHandler("CSRooms", this::handleCSRooms);
-        handlerMap.registerHandler("CSCreateRoom", this::handleCSCreateRoom);
-        handlerMap.registerHandler("CSJoinRoom", this::handleCSJoinRoom);
-        handlerMap.registerHandler("CSLeaveRoom", this::handleCSLeaveRoom);
-        handlerMap.registerHandler("CSChat", this::handleCSChat);
-        handlerMap.registerHandler("CSShutdown", this::handleCSShutdown);
+        handlerMap.registerHandler("CSName", new CSNameHandler());
+        handlerMap.registerHandler("CSRooms", new CSRoomsHandler());
+        handlerMap.registerHandler("CSCreateRoom", new CSCreateRoomHandler());
+        handlerMap.registerHandler("CSJoinRoom", new CSJoinRoomHandler());
+        handlerMap.registerHandler("CSLeaveRoom", new CSLeaveRoomHandler());
+        handlerMap.registerHandler("CSChat", new CSChatHandler());
+        handlerMap.registerHandler("CSShutdown", new CSShutDownHandler());
     }
 
-    private void handleCSShutdown(Message message) {}
-
-    private void handleCSChat(Message message) {}
-
-    private void handleCSLeaveRoom(Message message) {}
-
-    private void handleCSJoinRoom(Message message) {}
-
-    private void handleCSCreateRoom(Message message) {}
-
-    private void handleCSRooms(Message message) {}
-
-    private void handleCSName(Message message) {}
+    private void handleCSName(Message message) {
+        JSONObject jsonData = message.getJsonData();
+        String name = jsonData.getString("name");
+    }
 
     private void processMessage(Message message) {
         handlerMap.handleMessage(message);

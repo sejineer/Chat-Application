@@ -1,27 +1,35 @@
 package com.chat;
 
+import org.json.JSONObject;
+
+import java.nio.channels.SocketChannel;
+
 public class Message {
 
     private String type;
-    private String sender;
-    private String message;
+    private JSONObject jsonData;
+    private SocketChannel clientChannel;
 
-    public Message(String type, String sender, String message) {
+    public Message(String type, JSONObject jsonData, SocketChannel clientChannel) {
         this.type = type;
-        this.sender = sender;
-        this.message = message;
+        this.jsonData = jsonData;
+        this.clientChannel = clientChannel;
     }
 
     public String getType() {
         return type;
     }
 
-    public String getSender() {
-        return sender;
+    public JSONObject getJsonData() {
+        return jsonData;
     }
 
-    public String getMessage() {
-        return message;
+    public void setClientChannel(SocketChannel clientChannel) {
+        this.clientChannel = clientChannel;
+    }
+
+    public SocketChannel getClientChannel() {
+        return clientChannel;
     }
 
 }

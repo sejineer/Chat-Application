@@ -45,16 +45,24 @@ public class ClientHandler implements Runnable {
 
     public void readMessage(SelectionKey key) {
         try {
-            ByteBuffer buffer = ByteBuffer.allocate(256);
-            int read = channel.read(buffer);
-            if (read == -1) {
+            ByteBuffer lengthBuffer = ByteBuffer.allocate(2);
+            if(channel.read(lengthBuffer) < 2) {
+                channel.close();
+                key.cancel();
+                return;
+            }
+            lengthBuffer.flip();
+            int messageLength = lengthBuffer.getShort() & 0xffff; // ungisned short로 변환
+
+            ByteBuffer messageBuffer = ByteBuffer.allocate(messageLength);
+            if(channel.read(messageBuffer) < messageLength) {
                 channel.close();
                 key.cancel();
                 return;
             }
 
-            String received = new String(buffer.array(), 0, buffer.position(), StandardCharsets.UTF_8);
-            buffer.clear();
+            messageBuffer.flip();
+            String received = StandardCharsets.UTF_8.decode(messageBuffer).toString();
 
             JsonObject json = JsonParser.parseString(received).getAsJsonObject();
             String type = json.get("type").getAsString();

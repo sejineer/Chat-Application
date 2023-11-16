@@ -56,6 +56,7 @@ public class ClientHandler implements Runnable {
             messageBuffer.flip();
 
             String received = StandardCharsets.UTF_8.decode(messageBuffer).toString();
+            System.out.println(received);
             JsonObject json = JsonParser.parseString(received).getAsJsonObject();
             String type = json.get("type").getAsString();
             Message message = new Message(type, json, channel);

@@ -1,16 +1,17 @@
 package com.chat;
 
-import org.json.JSONObject;
+
+import com.google.gson.JsonObject;
 
 import java.nio.channels.SocketChannel;
 
 public class Message {
 
     private String type;
-    private JSONObject jsonData;
+    private JsonObject jsonData;
     private SocketChannel clientChannel;
 
-    public Message(String type, JSONObject jsonData, SocketChannel clientChannel) {
+    public Message(String type, JsonObject jsonData, SocketChannel clientChannel) {
         this.type = type;
         this.jsonData = jsonData;
         this.clientChannel = clientChannel;
@@ -20,7 +21,7 @@ public class Message {
         return type;
     }
 
-    public JSONObject getJsonData() {
+    public JsonObject getJsonData() {
         return jsonData;
     }
 

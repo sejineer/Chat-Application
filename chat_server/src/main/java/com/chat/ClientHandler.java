@@ -1,6 +1,7 @@
 package com.chat;
 
-import org.json.JSONObject;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -55,8 +56,8 @@ public class ClientHandler implements Runnable {
             String received = new String(buffer.array(), 0, buffer.position(), StandardCharsets.UTF_8);
             buffer.clear();
 
-            JSONObject json = new JSONObject(received);
-            String type = json.getString("type");
+            JsonObject json = JsonParser.parseString(received).getAsJsonObject();
+            String type = json.get("type").getAsString();
             Message message = new Message(type, json, channel);
             messageQueue.put(message);
         } catch (IOException | InterruptedException e) {

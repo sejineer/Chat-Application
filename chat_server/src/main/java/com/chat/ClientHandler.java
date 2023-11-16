@@ -46,30 +46,29 @@ public class ClientHandler implements Runnable {
     public void readMessage(SelectionKey key) {
         try {
             ByteBuffer lengthBuffer = ByteBuffer.allocate(2);
-            if(channel.read(lengthBuffer) < 2) {
-                channel.close();
-                key.cancel();
-                return;
-            }
+            readFully(lengthBuffer, 2);
             lengthBuffer.flip();
             int messageLength = lengthBuffer.getShort() & 0xffff; // ungisned short로 변환
 
             ByteBuffer messageBuffer = ByteBuffer.allocate(messageLength);
-            if(channel.read(messageBuffer) < messageLength) {
-                channel.close();
-                key.cancel();
-                return;
-            }
+            readFully(messageBuffer, messageLength);
 
             messageBuffer.flip();
-            String received = StandardCharsets.UTF_8.decode(messageBuffer).toString();
 
+            String received = StandardCharsets.UTF_8.decode(messageBuffer).toString();
             JsonObject json = JsonParser.parseString(received).getAsJsonObject();
             String type = json.get("type").getAsString();
             Message message = new Message(type, json, channel);
             messageQueue.put(message);
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException("메시지 읽기 오류 발생", e);
+        }
+    }
+
+    private void readFully(ByteBuffer buffer, int length) throws IOException {
+        while (buffer.position() < length) {
+            int bytesRead = channel.read(buffer);
+            if(bytesRead == -1) throw new IOException("End of stream reached");
         }
     }
 

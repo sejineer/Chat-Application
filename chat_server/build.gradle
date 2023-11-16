@@ -29,7 +29,8 @@ tasks.withType(JavaCompile) {
 jar {
     manifest {
         attributes(
-                'Main-Class': 'com.chat.ChatApplication'
+                'Main-Class': 'com.chat.ChatApplication',
+                'Class-Path': configurations.runtimeClasspath.collect { it.getName() }.join(' ')
         )
     }
 }

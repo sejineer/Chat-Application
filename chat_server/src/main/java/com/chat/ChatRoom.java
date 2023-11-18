@@ -13,6 +13,14 @@ public class ChatRoom {
         this.members = new ArrayList<>();
     }
 
+    public String getTitle() {
+        return title;
+    }
+
+    public List<Client> getMembers() {
+        return members;
+    }
+
     public void addClient(Client client) {
         members.add(client);
         client.setCurrentRoom(this);

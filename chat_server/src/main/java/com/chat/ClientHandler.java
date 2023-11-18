@@ -59,7 +59,7 @@ public class ClientHandler implements Runnable {
             System.out.println(received);
             JsonObject json = JsonParser.parseString(received).getAsJsonObject();
             String type = json.get("type").getAsString();
-            Message message = new Message(type, json, channel);
+            Message message = new Message(type, json, channel, this.client);
             messageQueue.put(message);
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException("메시지 읽기 오류 발생", e);

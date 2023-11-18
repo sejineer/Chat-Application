@@ -17,6 +17,7 @@ public class Server implements Runnable {
     private ExecutorService threadPool;
     private BlockingQueue<Message> messageQueue;
     private MessageHandlerMap handlerMap;
+    private Map<SocketChannel, Client> clientMap;
 
     public Server(int port, int threadPoolSize) {
         try {
@@ -29,6 +30,7 @@ public class Server implements Runnable {
             threadPool = Executors.newFixedThreadPool(threadPoolSize);
             messageQueue = new LinkedBlockingQueue<>();
             handlerMap = new MessageHandlerMap();
+            clientMap = new ConcurrentHashMap<>();
             registerMessageHandlers();
             startMessageProcessor();
         } catch (IOException e) {

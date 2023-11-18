@@ -15,6 +15,18 @@ public class Client {
         this.channel = channel;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public ChatRoom getCurrentRoom() {
+        return currentRoom;
+    }
+
+    public SocketChannel getChannel() {
+        return channel;
+    }
+
     public void setName(String name) {
         this.name = name;
     }

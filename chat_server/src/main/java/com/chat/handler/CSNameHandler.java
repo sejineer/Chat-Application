@@ -33,19 +33,19 @@ public class CSNameHandler implements MessageHandler {
         JsonObject responseMessage = createResponseMessage(newName);
         messageSender.sendMessage(client.getChannel(), responseMessage);
 
-//        if (client.getCurrentRoom() != null) {
-//            ChatRoom room = client.getCurrentRoom();
-//            for (Client roomClient : room.getMembers()) {
-//                JsonObject roomResponseMessage = createResponseMessage(newName);
-//                messageSender.sendMessage(roomClient.getChannel(), roomResponseMessage);
-//            }
-//        }
+        if (client.getCurrentRoom() != null) {
+            ChatRoom room = client.getCurrentRoom();
+            for (Client roomClient : room.getMembers()) {
+                JsonObject roomResponseMessage = createResponseMessage(newName);
+                messageSender.sendMessage(roomClient.getChannel(), roomResponseMessage);
+            }
+        }
     }
 
     private JsonObject createResponseMessage(String newName) {
         JsonObject responseMessage = new JsonObject();
         responseMessage.addProperty("type", "SCSystemMessage");
-        responseMessage.addProperty("text", "[시스템 메시지] 이름이 " + newName + "으로 변경되었습니다.");
+        responseMessage.addProperty("text", "이름이 " + newName + "으로 변경되었습니다.");
         return responseMessage;
     }
 

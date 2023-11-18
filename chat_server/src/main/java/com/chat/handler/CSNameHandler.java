@@ -19,28 +19,23 @@ public class CSNameHandler implements MessageHandler {
     public void handle(Message message) {
         JsonObject jsonData = message.getJsonData();
         String newName = jsonData.get("name").getAsString();
-        SocketChannel clientChannel = message.getClientChannel();
 
         Client client = message.getClient();
-        if (client == null) {
-            LOGGER.warning("Client not found for channel: " + message.getClientChannel());
-            return;
-        }
-
-        String oldName = client.getName();
         client.setName(newName);
 
-        sendMessageToClient(clientChannel, "[시스템 메시지] 이름이 " + newName + "으로 변경되었습니다.");
+        sendMessageToClient(client.getChannel(), "[시스템 메시지] 이름이 " + newName + "으로 변경되었습니다.");
+
+        System.out.println("[시스템 메시지] 이름이 " + newName + "으로 변경되었습니다.");
 
         if (client.getCurrentRoom() != null) {
             ChatRoom room = client.getCurrentRoom();
             for (Client roomClient : room.getMembers()) {
-                sendMessageToClient(roomClient.getChannel(), "[시스템 메시지] " + oldName + "의 이름이" + newName + "으로 변경되었습니다.");
+                sendMessageToClient(roomClient.getChannel(), "[시스템 메시지] " + client.getName() + "의 이름이 " + newName + "으로 변경되었습니다.");
             }
         }
     }
 
-    private void sendMessageToClient(SocketChannel clientChannel, String message) {
+    private void sendMessageToClient(SocketChannel channel, String message) {
         try {
             byte[] messageBytes = message.getBytes(StandardCharsets.UTF_8);
 
@@ -48,10 +43,10 @@ public class CSNameHandler implements MessageHandler {
             buffer.rewind();
 
             while (buffer.hasRemaining()) {
-                clientChannel.write(buffer);
+                channel.write(buffer);
             }
         } catch (IOException e) {
-            System.err.println("메세지 전송 중 오류 발생: " + e.getMessage());
+            System.err.println("메시지 전송 중 오류 발생: " + e.getMessage());
         }
     }
 

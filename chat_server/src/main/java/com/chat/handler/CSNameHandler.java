@@ -37,7 +37,12 @@ public class CSNameHandler implements MessageHandler {
 
     private void sendMessageToClient(SocketChannel channel, String message) {
         try {
-            byte[] messageBytes = message.getBytes(StandardCharsets.UTF_8);
+            JsonObject jsonObject = new JsonObject();
+            jsonObject.addProperty("type", "SCSystemMessage");
+            jsonObject.addProperty("text", message);
+
+            String jsonObjectString = jsonObject.toString();
+            byte[] messageBytes = jsonObjectString.getBytes(StandardCharsets.UTF_8);
 
             ByteBuffer lengthBuffer = ByteBuffer.allocate(2);
             lengthBuffer.putShort((short) messageBytes.length);

@@ -33,13 +33,13 @@ public class CSNameHandler implements MessageHandler {
         JsonObject responseMessage = createResponseMessage(newName);
         messageSender.sendMessage(client.getChannel(), responseMessage);
 
-        if (client.getCurrentRoom() != null) {
-            ChatRoom room = client.getCurrentRoom();
-            for (Client roomClient : room.getMembers()) {
-                JsonObject roomResponseMesage = createResponseMessage(newName);
-                messageSender.sendMessage(roomClient.getChannel(), roomResponseMesage);
-            }
-        }
+//        if (client.getCurrentRoom() != null) {
+//            ChatRoom room = client.getCurrentRoom();
+//            for (Client roomClient : room.getMembers()) {
+//                JsonObject roomResponseMessage = createResponseMessage(newName);
+//                messageSender.sendMessage(roomClient.getChannel(), roomResponseMessage);
+//            }
+//        }
     }
 
     private JsonObject createResponseMessage(String newName) {

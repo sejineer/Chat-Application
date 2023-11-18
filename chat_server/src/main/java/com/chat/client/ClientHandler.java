@@ -1,5 +1,7 @@
-package com.chat;
+package com.chat.client;
 
+import com.chat.client.Client;
+import com.chat.message.Message;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 

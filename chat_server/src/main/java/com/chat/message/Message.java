@@ -1,6 +1,7 @@
-package com.chat;
+package com.chat.message;
 
 
+import com.chat.client.Client;
 import com.google.gson.JsonObject;
 
 import java.nio.channels.SocketChannel;

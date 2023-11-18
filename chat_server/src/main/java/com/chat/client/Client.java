@@ -1,4 +1,6 @@
-package com.chat;
+package com.chat.client;
+
+import com.chat.client.ChatRoom;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

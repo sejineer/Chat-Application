@@ -1,16 +1,24 @@
-package com.chat;
+package com.chat.client;
+
+import com.chat.message.Message;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ChatRoom {
 
+    private Long id;
     private String title;
     private List<Client> members;
 
-    public ChatRoom(String title) {
+    public ChatRoom(Long id, String title) {
+        this.id = id;
         this.title = title;
         this.members = new ArrayList<>();
+    }
+
+    public Long getId() {
+        return id;
     }
 
     public String getTitle() {

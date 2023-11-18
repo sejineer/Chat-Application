@@ -1,8 +1,10 @@
 package com.chat.handler;
 
-import com.chat.ChatRoom;
-import com.chat.Client;
-import com.chat.Message;
+import com.chat.client.ChatRoom;
+import com.chat.client.Client;
+import com.chat.message.JsonMessageFormatter;
+import com.chat.message.Message;
+import com.chat.message.MessageSender;
 import com.google.gson.JsonObject;
 
 import java.io.IOException;
@@ -14,6 +16,11 @@ import java.util.logging.Logger;
 public class CSNameHandler implements MessageHandler {
 
     private static final Logger LOGGER = Logger.getLogger(CSNameHandler.class.getName());
+    private MessageSender messageSender;
+
+    public CSNameHandler() {
+        this.messageSender = new MessageSender(new JsonMessageFormatter());
+    }
 
     @Override
     public void handle(Message message) {
@@ -23,41 +30,17 @@ public class CSNameHandler implements MessageHandler {
         Client client = message.getClient();
         client.setName(newName);
 
-        sendMessageToClient(client.getChannel(), "[시스템 메시지] 이름이 " + newName + "으로 변경되었습니다.");
+        JsonObject responseMessage = new JsonObject();
+        responseMessage.addProperty("type", "SCSystemMessage");
+        responseMessage.addProperty("text", "[시스템 메시지] 이름이 " + newName + "으로 변경되었습니다.");
 
-        System.out.println("[시스템 메시지] 이름이 " + newName + "으로 변경되었습니다.");
+        messageSender.sendMessage(client.getChannel(), responseMessage);
 
         if (client.getCurrentRoom() != null) {
             ChatRoom room = client.getCurrentRoom();
             for (Client roomClient : room.getMembers()) {
-                sendMessageToClient(roomClient.getChannel(), "[시스템 메시지] " + client.getName() + "의 이름이 " + newName + "으로 변경되었습니다.");
+                messageSender.sendMessage(roomClient.getChannel(), responseMessage);
             }
-        }
-    }
-
-    private void sendMessageToClient(SocketChannel channel, String message) {
-        try {
-            JsonObject jsonObject = new JsonObject();
-            jsonObject.addProperty("type", "SCSystemMessage");
-            jsonObject.addProperty("text", message);
-
-            String jsonObjectString = jsonObject.toString();
-            byte[] messageBytes = jsonObjectString.getBytes(StandardCharsets.UTF_8);
-
-            ByteBuffer lengthBuffer = ByteBuffer.allocate(2);
-            lengthBuffer.putShort((short) messageBytes.length);
-            lengthBuffer.flip();
-
-            ByteBuffer buffer = ByteBuffer.allocate(2 + messageBytes.length);
-            buffer.put(lengthBuffer);
-            buffer.put(messageBytes);
-            buffer.flip();
-
-            while (buffer.hasRemaining()) {
-                channel.write(buffer);
-            }
-        } catch (IOException e) {
-            System.err.println("메시지 전송 중 오류 발생: " + e.getMessage());
         }
     }
 

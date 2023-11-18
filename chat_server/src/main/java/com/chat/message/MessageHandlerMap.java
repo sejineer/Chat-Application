@@ -1,10 +1,10 @@
-package com.chat;
+package com.chat.message;
 
 import com.chat.handler.MessageHandler;
+import com.chat.message.Message;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Consumer;
 
 public class MessageHandlerMap {
 

@@ -1,6 +1,6 @@
 package com.chat.handler;
 
-import com.chat.Message;
+import com.chat.message.Message;
 import com.google.gson.JsonObject;
 
 public class CSCreateRoomHandler implements MessageHandler {

@@ -1,5 +1,8 @@
-package com.chat;
+package com.chat.message;
 
+
+import com.chat.message.Message;
+import com.chat.message.MessageHandlerMap;
 
 import java.util.concurrent.BlockingQueue;
 

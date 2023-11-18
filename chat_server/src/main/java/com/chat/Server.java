@@ -1,6 +1,12 @@
 package com.chat;
 
+import com.chat.client.Client;
+import com.chat.client.ClientHandler;
 import com.chat.handler.*;
+import com.chat.message.Message;
+import com.chat.message.MessageHandlerMap;
+import com.chat.message.MessageProcessor;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;

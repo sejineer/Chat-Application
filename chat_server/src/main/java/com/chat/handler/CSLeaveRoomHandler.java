@@ -1,6 +1,6 @@
 package com.chat.handler;
 
-import com.chat.Message;
+import com.chat.message.Message;
 
 public class CSLeaveRoomHandler implements MessageHandler {
 

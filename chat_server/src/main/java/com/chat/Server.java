@@ -1,5 +1,6 @@
 package com.chat;
 
+import com.chat.client.ChatRoomHandler;
 import com.chat.client.Client;
 import com.chat.client.ClientHandler;
 import com.chat.handler.*;
@@ -23,7 +24,7 @@ public class Server implements Runnable {
     private ExecutorService threadPool;
     private BlockingQueue<Message> messageQueue;
     private MessageHandlerMap handlerMap;
-    private Map<SocketChannel, Client> clientMap;
+    private ChatRoomHandler chatRoomHandler;
 
     public Server(int port, int threadPoolSize) {
         try {
@@ -36,7 +37,7 @@ public class Server implements Runnable {
             threadPool = Executors.newFixedThreadPool(threadPoolSize);
             messageQueue = new LinkedBlockingQueue<>();
             handlerMap = new MessageHandlerMap();
-            clientMap = new ConcurrentHashMap<>();
+            chatRoomHandler = new ChatRoomHandler();
             registerMessageHandlers();
             startMessageProcessor();
         } catch (IOException e) {
@@ -92,7 +93,7 @@ public class Server implements Runnable {
 
     private void registerMessageHandlers() {
         handlerMap.registerHandler("CSName", new CSNameHandler());
-        handlerMap.registerHandler("CSRooms", new CSRoomsHandler());
+        handlerMap.registerHandler("CSRooms", new CSRoomsHandler(chatRoomHandler));
         handlerMap.registerHandler("CSCreateRoom", new CSCreateRoomHandler());
         handlerMap.registerHandler("CSJoinRoom", new CSJoinRoomHandler());
         handlerMap.registerHandler("CSLeaveRoom", new CSLeaveRoomHandler());

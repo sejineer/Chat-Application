@@ -39,8 +39,14 @@ public class CSNameHandler implements MessageHandler {
         try {
             byte[] messageBytes = message.getBytes(StandardCharsets.UTF_8);
 
-            ByteBuffer buffer = ByteBuffer.wrap(messageBytes);
-            buffer.rewind();
+            ByteBuffer lengthBuffer = ByteBuffer.allocate(2);
+            lengthBuffer.putShort((short) messageBytes.length);
+            lengthBuffer.flip();
+
+            ByteBuffer buffer = ByteBuffer.allocate(2 + messageBytes.length);
+            buffer.put(lengthBuffer);
+            buffer.put(messageBytes);
+            buffer.flip();
 
             while (buffer.hasRemaining()) {
                 channel.write(buffer);

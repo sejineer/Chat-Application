@@ -10,7 +10,7 @@ public class CSChatHandler implements MessageHandler {
 
     private MessageSender messageSender;
 
-    public CSChatHandler(MessageSender messageSender) {
+    public CSChatHandler() {
         this.messageSender = new MessageSender(new JsonMessageFormatter());
     }
 
@@ -21,9 +21,8 @@ public class CSChatHandler implements MessageHandler {
 
         Client client = message.getClient();
         if (client.getCurrentRoom() != null) {
-            createChatResponseMessage(client, chat);
             for (Client roomMember : client.getCurrentRoom().getMembers()) {
-                createChatResponseMessage(roomMember, chat);
+                createChatResponseMessage(roomMember, client.getName(), chat);
             }
         } else {
             JsonObject responseMessage = new JsonObject();
@@ -33,10 +32,10 @@ public class CSChatHandler implements MessageHandler {
         }
     }
 
-    private void createChatResponseMessage(Client client, String text) {
+    private void createChatResponseMessage(Client client, String sender, String text) {
         JsonObject responseMessage = new JsonObject();
         responseMessage.addProperty("type", "SCChat");
-        responseMessage.addProperty("member", client.getName());
+        responseMessage.addProperty("member", sender);
         responseMessage.addProperty("text", text);
         messageSender.sendMessage(client.getChannel(), responseMessage);
     }

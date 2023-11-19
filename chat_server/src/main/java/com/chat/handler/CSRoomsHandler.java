@@ -24,9 +24,11 @@ public class CSRoomsHandler implements MessageHandler {
 
     @Override
     public void handle(Message message) {
-        List<ChatRoom> chatRooms = (List<ChatRoom>) chatRoomHandler.getAllRooms();
+        List<ChatRoom> chatRooms = new ArrayList<>(chatRoomHandler.getAllRooms());
         JsonObject response = new JsonObject();
         JsonArray roomsArray = new JsonArray();
+
+        response.addProperty("type", "SCRoomsResult");
 
         for (ChatRoom room : chatRooms) {
             JsonObject roomObject = new JsonObject();

@@ -12,9 +12,11 @@ import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.BlockingQueue;
+import java.util.logging.Logger;
 
 public class ClientHandler implements Runnable {
 
+    private static final Logger LOGGER = Logger.getLogger(ClientHandler.class.getName());
     private Client client;
     private SocketChannel channel;
     private Selector selector;
@@ -31,48 +33,44 @@ public class ClientHandler implements Runnable {
     public void run() {
         try {
             ByteBuffer buffer = ByteBuffer.allocate(256);
-            int read;
             while (true) {
-                read = channel.read(buffer);
+                int read = channel.read(buffer);
                 if (read == -1) {
+                    LOGGER.info("클라이언트 연결이 끊어졌습니다: " + channel);
                     channel.close();
-                    return;
+                    break;
                 }
-
+                readMessage(buffer);
             }
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
             throw new RuntimeException("클라이언트 통신 중 오류 발생", e);
         }
     }
 
-    public void readMessage(SelectionKey key) {
-        try {
-            ByteBuffer lengthBuffer = ByteBuffer.allocate(2);
-            readFully(lengthBuffer, 2);
-            lengthBuffer.flip();
-            int messageLength = lengthBuffer.getShort() & 0xffff; // ungisned short로 변환
-
-            ByteBuffer messageBuffer = ByteBuffer.allocate(messageLength);
-            readFully(messageBuffer, messageLength);
-
-            messageBuffer.flip();
-
-            String received = StandardCharsets.UTF_8.decode(messageBuffer).toString();
-            System.out.println(received);
-            JsonObject json = JsonParser.parseString(received).getAsJsonObject();
-            String type = json.get("type").getAsString();
-            Message message = new Message(type, json, channel, this.client);
-            messageQueue.put(message);
-        } catch (IOException | InterruptedException e) {
-            throw new RuntimeException("메시지 읽기 오류 발생", e);
+    public void readMessage(ByteBuffer buffer) throws IOException, InterruptedException {
+        buffer.flip();
+        if (buffer.remaining() < 2) {
+            buffer.compact();
+            return;
         }
-    }
 
-    private void readFully(ByteBuffer buffer, int length) throws IOException {
-        while (buffer.position() < length) {
-            int bytesRead = channel.read(buffer);
-            if(bytesRead == -1) throw new IOException("End of stream reached");
+        int messageLength = buffer.getShort() & 0xffff;
+        if (buffer.remaining() < messageLength) {
+            buffer.compact();
+            return;
         }
+
+        ByteBuffer messageBuffer = ByteBuffer.allocate(messageLength);
+        buffer.get(messageBuffer.array(), 0, messageLength);
+
+        String received = StandardCharsets.UTF_8.decode(messageBuffer).toString();
+        LOGGER.info("메시지 수신: " + received);
+        JsonObject json = JsonParser.parseString(received).getAsJsonObject();
+        String type = json.get("type").getAsString();
+        Message message = new Message(type, json, channel, this.client);
+        messageQueue.put(message);
+
+        buffer.compact();
     }
 
     public Client getClient() {

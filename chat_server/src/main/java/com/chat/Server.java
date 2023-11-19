@@ -112,7 +112,7 @@ public class Server implements Runnable {
             client.setName(initialName);
 
             // ClientHandler 생성 및 Selector의 Key에 첨부
-            ClientHandler clientHandler = new ClientHandler(clientChannel, selector, messageQueue, client);
+            ClientHandler clientHandler = new ClientHandler(clientChannel, messageQueue, client);
             key.attach(clientHandler);
         }
     }
@@ -132,7 +132,7 @@ public class Server implements Runnable {
         handlerMap.registerHandler("CSRooms", new CSRoomsHandler(chatRoomHandler));
         handlerMap.registerHandler("CSCreateRoom", new CSCreateRoomHandler(chatRoomHandler));
         handlerMap.registerHandler("CSJoinRoom", new CSJoinRoomHandler(chatRoomHandler));
-        handlerMap.registerHandler("CSLeaveRoom", new CSLeaveRoomHandler(chatRoomHandler));
+        handlerMap.registerHandler("CSLeaveRoom", new CSLeaveRoomHandler());
         handlerMap.registerHandler("CSChat", new CSChatHandler());
         handlerMap.registerHandler("CSShutdown", new CSShutDownHandler(this));
     }

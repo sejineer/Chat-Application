@@ -2,10 +2,6 @@ package com.chat.message;
 
 
 import com.chat.CustomBlockingQueue;
-import com.chat.message.Message;
-import com.chat.message.MessageHandlerMap;
-
-import java.util.concurrent.BlockingQueue;
 
 public class MessageProcessor implements Runnable {
 

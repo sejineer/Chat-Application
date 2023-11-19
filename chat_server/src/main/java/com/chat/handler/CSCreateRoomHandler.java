@@ -35,7 +35,6 @@ public class CSCreateRoomHandler implements MessageHandler {
             response.addProperty("type", "SCSystemMessage");
             response.addProperty("text", "방제[" + title + "] 방에 입장했습니다.");
         }
-        System.out.println(response);
         messageSender.sendMessage(client.getChannel(), response);
     }
 

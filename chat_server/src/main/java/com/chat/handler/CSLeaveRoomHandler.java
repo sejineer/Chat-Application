@@ -11,11 +11,9 @@ import com.google.gson.JsonObject;
 public class CSLeaveRoomHandler implements MessageHandler {
 
     private MessageSender messageSender;
-    private ChatRoomHandler chatRoomHandler;
 
-    public CSLeaveRoomHandler(ChatRoomHandler chatRoomHandler) {
+    public CSLeaveRoomHandler() {
         this.messageSender = new MessageSender(new JsonMessageFormatter());
-        this.chatRoomHandler = chatRoomHandler;
     }
 
     @Override

@@ -68,6 +68,36 @@ public class Server implements Runnable {
         }
     }
 
+    public void closeAllClientConnections() {
+        Set<SelectionKey> keys = selector.keys();
+        for (SelectionKey key : keys) {
+            try {
+                if (key.isValid() && key.channel() instanceof SocketChannel) {
+                    SocketChannel clientChannel = (SocketChannel) key.channel();
+                    clientChannel.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public Selector getSelector() {
+        return selector;
+    }
+
+    public ServerSocketChannel getServerChannel() {
+        return serverChannel;
+    }
+
+    public ExecutorService getThreadPool() {
+        return threadPool;
+    }
+
+    public BlockingQueue<Message> getMessageQueue() {
+        return messageQueue;
+    }
+
     private void registerClient() throws IOException {
         // ServerSocketChannel을 통해 SocketChannel 얻기
         SocketChannel clientChannel = serverChannel.accept();
@@ -98,7 +128,7 @@ public class Server implements Runnable {
         handlerMap.registerHandler("CSJoinRoom", new CSJoinRoomHandler(chatRoomHandler));
         handlerMap.registerHandler("CSLeaveRoom", new CSLeaveRoomHandler(chatRoomHandler));
         handlerMap.registerHandler("CSChat", new CSChatHandler());
-        handlerMap.registerHandler("CSShutdown", new CSShutDownHandler());
+        handlerMap.registerHandler("CSShutdown", new CSShutDownHandler(this));
     }
 
     private void processMessage(Message message) {

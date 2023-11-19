@@ -22,15 +22,17 @@ public class CSJoinRoomHandler implements MessageHandler {
     @Override
     public void handle(Message message) {
         JsonObject jsonData = message.getJsonData();
-        String roomId = jsonData.get("roomId").getAsString();
+        Long roomId = jsonData.get("roomId").getAsLong();
 
         Client client = message.getClient();
-        ChatRoom chatRoom = chatRoomHandler.getRoom(Long.valueOf(roomId));
+        ChatRoom chatRoom = chatRoomHandler.getRoom(roomId);
 
         JsonObject response = new JsonObject();
         if (client.getCurrentRoom() != null) {
             response.addProperty("type", "SCSystemMessage");
             response.addProperty("text", "대화 방에 있을 때는 다른 방에 들어갈 수 없습니다.");
+
+            messageSender.sendMessage(client.getChannel(), response);
         } else {
             chatRoom.addClient(client);
             client.setCurrentRoom(chatRoom);

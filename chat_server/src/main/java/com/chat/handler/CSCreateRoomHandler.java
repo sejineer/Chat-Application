@@ -30,6 +30,7 @@ public class CSCreateRoomHandler implements MessageHandler {
             String title = message.getJsonData().get("title").getAsString();
             ChatRoom newRoom = chatRoomHandler.createRoom(title);
             newRoom.addClient(client);
+            client.setCurrentRoom(newRoom);
 
             response.addProperty("type", "SCSystemMessage");
             response.addProperty("text", "방제[" + title + "] 방에 입장했습니다.");

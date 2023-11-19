@@ -27,28 +27,24 @@ public class CSJoinRoomHandler implements MessageHandler {
         Client client = message.getClient();
         ChatRoom chatRoom = chatRoomHandler.getRoom(roomId);
 
-        JsonObject response = new JsonObject();
         if (client.getCurrentRoom() != null) {
-            response.addProperty("type", "SCSystemMessage");
-            response.addProperty("text", "대화 방에 있을 때는 다른 방에 들어갈 수 없습니다.");
-
-            messageSender.sendMessage(client.getChannel(), response);
+            createResponseMessage(client, "대화 방에 있을 때는 다른 방에 들어갈 수 없습니다.");
         } else {
             chatRoom.addClient(client);
             client.setCurrentRoom(chatRoom);
-
-            response.addProperty("type", "SCSystemMessage");
-            response.addProperty("text", "방제[" + chatRoom.getTitle() + "] 방에 입장했습니다.");
-
-            messageSender.sendMessage(client.getChannel(), response);
+            createResponseMessage(client, "방제[" + chatRoom.getTitle() + "] 방에 입장했습니다.");
 
             for (Client roomClient : chatRoom.getMembers()) {
-                JsonObject roomResponseMessage = new JsonObject();
-                roomResponseMessage.addProperty("type", "SCSystemMessage");
-                roomResponseMessage.addProperty("text", "[" + client.getName() + "] 님이 입장했습니다.");
-                messageSender.sendMessage(roomClient.getChannel(), roomResponseMessage);
+                createResponseMessage(roomClient, "[" + client.getName() + "] 님이 입장했습니다.");
             }
         }
+    }
+
+    private void createResponseMessage(Client client, String text) {
+        JsonObject responseMessage = new JsonObject();
+        responseMessage.addProperty("type", "SCSystemMessage");
+        responseMessage.addProperty("text", text);
+        messageSender.sendMessage(client.getChannel(), responseMessage);
     }
 
 }

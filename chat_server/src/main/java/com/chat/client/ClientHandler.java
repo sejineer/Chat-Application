@@ -46,28 +46,30 @@ public class ClientHandler implements Runnable {
     }
 
     public void readMessage(SelectionKey key) {
-        try {
-            ByteBuffer lengthBuffer = ByteBuffer.allocate(2);
-            while (lengthBuffer.hasRemaining()) {
-                channel.read(lengthBuffer);
-            }
-            lengthBuffer.flip();
-            int messageLength = lengthBuffer.getShort() & 0xffff; // ungisned short로 변환
+        synchronized (channel) {
+            try {
+                ByteBuffer lengthBuffer = ByteBuffer.allocate(2);
+                while (lengthBuffer.hasRemaining()) {
+                    channel.read(lengthBuffer);
+                }
+                lengthBuffer.flip();
+                int messageLength = lengthBuffer.getShort() & 0xffff; // ungisned short로 변환
 
-            ByteBuffer messageBuffer = ByteBuffer.allocate(messageLength);
-            while (messageBuffer.hasRemaining()) {
-                channel.read(messageBuffer);
-            }
-            messageBuffer.flip();
+                ByteBuffer messageBuffer = ByteBuffer.allocate(messageLength);
+                while (messageBuffer.hasRemaining()) {
+                    channel.read(messageBuffer);
+                }
+                messageBuffer.flip();
 
-            String received = StandardCharsets.UTF_8.decode(messageBuffer).toString();
-            System.out.println(received);
-            JsonObject json = JsonParser.parseString(received).getAsJsonObject();
-            String type = json.get("type").getAsString();
-            Message message = new Message(type, json, channel, this.client);
-            messageQueue.put(message);
-        } catch (IOException | InterruptedException e) {
-            throw new RuntimeException("메시지 읽기 오류 발생", e);
+                String received = StandardCharsets.UTF_8.decode(messageBuffer).toString();
+                System.out.println(received);
+                JsonObject json = JsonParser.parseString(received).getAsJsonObject();
+                String type = json.get("type").getAsString();
+                Message message = new Message(type, json, channel, this.client);
+                messageQueue.put(message);
+            } catch (IOException | InterruptedException e) {
+                throw new RuntimeException("메시지 읽기 오류 발생", e);
+            }
         }
     }
 

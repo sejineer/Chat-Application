@@ -96,7 +96,7 @@ public class Server implements Runnable {
         handlerMap.registerHandler("CSRooms", new CSRoomsHandler(chatRoomHandler));
         handlerMap.registerHandler("CSCreateRoom", new CSCreateRoomHandler(chatRoomHandler));
         handlerMap.registerHandler("CSJoinRoom", new CSJoinRoomHandler(chatRoomHandler));
-        handlerMap.registerHandler("CSLeaveRoom", new CSLeaveRoomHandler());
+        handlerMap.registerHandler("CSLeaveRoom", new CSLeaveRoomHandler(chatRoomHandler));
         handlerMap.registerHandler("CSChat", new CSChatHandler());
         handlerMap.registerHandler("CSShutdown", new CSShutDownHandler());
     }

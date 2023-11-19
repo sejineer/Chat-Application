@@ -3,7 +3,6 @@ package com.chat.handler;
 import com.chat.client.ChatRoom;
 import com.chat.client.ChatRoomHandler;
 import com.chat.client.Client;
-import com.chat.client.ClientHandler;
 import com.chat.message.JsonMessageFormatter;
 import com.chat.message.Message;
 import com.chat.message.MessageSender;

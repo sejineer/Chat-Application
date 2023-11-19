@@ -105,8 +105,14 @@ public class Server implements Runnable {
             clientChannel.configureBlocking(false);
             SelectionKey key = clientChannel.register(selector, SelectionKey.OP_READ);
 
+            InetSocketAddress remoteAddress = (InetSocketAddress) clientChannel.getRemoteAddress();
+            String initialName = remoteAddress.getAddress().getHostAddress() + ":" + remoteAddress.getPort();
+
+            Client client = new Client(clientChannel);
+            client.setName(initialName);
+
             // ClientHandler 생성 및 Selector의 Key에 첨부
-            ClientHandler clientHandler = new ClientHandler(clientChannel, selector, messageQueue);
+            ClientHandler clientHandler = new ClientHandler(clientChannel, selector, messageQueue, client);
             key.attach(clientHandler);
         }
     }
@@ -129,10 +135,6 @@ public class Server implements Runnable {
         handlerMap.registerHandler("CSLeaveRoom", new CSLeaveRoomHandler(chatRoomHandler));
         handlerMap.registerHandler("CSChat", new CSChatHandler());
         handlerMap.registerHandler("CSShutdown", new CSShutDownHandler(this));
-    }
-
-    private void processMessage(Message message) {
-        handlerMap.handleMessage(message);
     }
 
 }

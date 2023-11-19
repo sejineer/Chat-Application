@@ -20,11 +20,11 @@ public class ClientHandler implements Runnable {
     private Selector selector;
     private BlockingQueue<Message> messageQueue;
 
-    public ClientHandler(SocketChannel channel, Selector selector, BlockingQueue<Message> messageQueue) {
+    public ClientHandler(SocketChannel channel, Selector selector, BlockingQueue<Message> messageQueue, Client client) {
         this.channel = channel;
         this.selector = selector;
         this.messageQueue = messageQueue;
-        this.client = new Client(channel);
+        this.client = client;
     }
 
     @Override

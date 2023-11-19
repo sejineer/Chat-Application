@@ -14,4 +14,5 @@ public class JsonMessageFormatter implements MessageFormatter {
         }
         return ((JsonObject) message).toString().getBytes(StandardCharsets.UTF_8);
     }
+    
 }

@@ -22,10 +22,12 @@ public class MessageSender {
             buffer.put(lengthBuffer);
             buffer.put(messageBytes);
             buffer.flip();
+            System.out.println("sendMessage method befor");
 
             while (buffer.hasRemaining()) {
                 channel.write(buffer);
             }
+            System.out.println("sendMessage method after");
         } catch (IOException e) {
             System.err.println("메시지 전송 중 오류 발생: " + e.getMessage());
         }

@@ -31,6 +31,7 @@ public class CSNameHandler implements MessageHandler {
         client.setName(newName);
 
         JsonObject responseMessage = createResponseMessage(newName);
+        System.out.println(responseMessage);
         messageSender.sendMessage(client.getChannel(), responseMessage);
 
         if (client.getCurrentRoom() != null) {

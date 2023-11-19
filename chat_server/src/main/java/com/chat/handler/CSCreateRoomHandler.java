@@ -25,16 +25,17 @@ public class CSCreateRoomHandler implements MessageHandler {
 
         if (client.getCurrentRoom() != null) {
             response.addProperty("type", "SCSystemMessage");
-            response.addProperty("text", "[시스템 메시지] 대화방에 있을 때는 방을 개설 할 수 없습니다.");
+            response.addProperty("text", "대화방에 있을 때는 방을 개설 할 수 없습니다.");
         } else {
             String title = message.getJsonData().get("title").getAsString();
             ChatRoom newRoom = chatRoomHandler.createRoom(title);
             newRoom.addClient(client);
 
             response.addProperty("type", "SCSystemMessage");
-            response.addProperty("text", "[시스템 메시지] 방제[" + title + "] 방에 입장했습니다.");
+            response.addProperty("text", "방제[" + title + "] 방에 입장했습니다.");
         }
-        messageSender.sendMessage(client.getChannel(), response.toString());
+        System.out.println(response);
+        messageSender.sendMessage(client.getChannel(), response);
     }
 
 }

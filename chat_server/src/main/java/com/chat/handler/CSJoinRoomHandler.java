@@ -26,7 +26,9 @@ public class CSJoinRoomHandler implements MessageHandler {
         Client client = message.getClient();
         ChatRoom chatRoom = chatRoomHandler.getRoom(roomId);
 
-        if (client.getCurrentRoom() != null) {
+        if (chatRoom == null) {
+            createResponseMessage(client, "대화 방이 존재하지 않습니다.");
+        } else if (client.getCurrentRoom() != null) {
             createResponseMessage(client, "대화 방에 있을 때는 다른 방에 들어갈 수 없습니다.");
         } else {
             chatRoom.addClient(client);

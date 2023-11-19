@@ -7,15 +7,8 @@ import com.chat.message.Message;
 import com.chat.message.MessageSender;
 import com.google.gson.JsonObject;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.SocketChannel;
-import java.nio.charset.StandardCharsets;
-import java.util.logging.Logger;
-
 public class CSNameHandler implements MessageHandler {
 
-    private static final Logger LOGGER = Logger.getLogger(CSNameHandler.class.getName());
     private MessageSender messageSender;
 
     public CSNameHandler() {

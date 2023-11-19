@@ -22,7 +22,7 @@ public class Server implements Runnable {
     private Selector selector;
     private ServerSocketChannel serverChannel;
     private ExecutorService threadPool;
-    private BlockingQueue<Message> messageQueue;
+    private CustomBlockingQueue<Message> messageQueue;
     private MessageHandlerMap handlerMap;
     private ChatRoomHandler chatRoomHandler;
 
@@ -35,7 +35,7 @@ public class Server implements Runnable {
             serverChannel.register(selector, SelectionKey.OP_ACCEPT);
 
             threadPool = Executors.newFixedThreadPool(threadPoolSize);
-            messageQueue = new LinkedBlockingQueue<>();
+            messageQueue = new CustomBlockingQueue<>(100);
             handlerMap = new MessageHandlerMap();
             chatRoomHandler = new ChatRoomHandler();
             registerMessageHandlers();
@@ -94,7 +94,7 @@ public class Server implements Runnable {
         return threadPool;
     }
 
-    public BlockingQueue<Message> getMessageQueue() {
+    public CustomBlockingQueue<Message> getMessageQueue() {
         return messageQueue;
     }
 

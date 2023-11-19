@@ -1,5 +1,6 @@
 package com.chat.client;
 
+import com.chat.CustomBlockingQueue;
 import com.chat.client.Client;
 import com.chat.message.Message;
 import com.google.gson.JsonObject;
@@ -18,9 +19,9 @@ public class ClientHandler implements Runnable {
     private Client client;
     private SocketChannel channel;
     private Selector selector;
-    private BlockingQueue<Message> messageQueue;
+    private CustomBlockingQueue<Message> messageQueue;
 
-    public ClientHandler(SocketChannel channel, Selector selector, BlockingQueue<Message> messageQueue, Client client) {
+    public ClientHandler(SocketChannel channel, Selector selector, CustomBlockingQueue<Message> messageQueue, Client client) {
         this.channel = channel;
         this.selector = selector;
         this.messageQueue = messageQueue;

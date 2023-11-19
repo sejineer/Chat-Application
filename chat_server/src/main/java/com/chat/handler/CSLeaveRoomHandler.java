@@ -25,6 +25,7 @@ public class CSLeaveRoomHandler implements MessageHandler {
         if (client.getCurrentRoom() != null) {
             ChatRoom chatRoom = client.getCurrentRoom();
             client.setCurrentRoom(null);
+            chatRoom.removeClient(client);
 
             createResponseMessage(client, "방제[" + chatRoom.getTitle() + "] 대화 방에서 퇴장했습니다.");
             for (Client roomClient : chatRoom.getMembers()) {

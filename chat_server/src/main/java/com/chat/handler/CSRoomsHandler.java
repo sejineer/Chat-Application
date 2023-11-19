@@ -43,7 +43,7 @@ public class CSRoomsHandler implements MessageHandler {
         }
         response.add("rooms", roomsArray);
 
-        messageSender.sendMessage(message.getClient().getChannel(), response.toString());
+        messageSender.sendMessage(message.getClient().getChannel(), response);
     }
 
 }
